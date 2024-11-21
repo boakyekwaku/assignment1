@@ -70,6 +70,14 @@ async def delete_post(post_id: int):
     for post in posts:
         if post["id"] == post_id:
             posts.remove(post)
-            
-        
+
+@app.post('/posts/search')
+async def search_posts(keyword : str):
+        lower = keyword.lower()
+        for post in posts:
+           for value in post.values():
+               if lower in str(value).lower():
+                   return {'post': post}
+
+
         
