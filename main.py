@@ -3,6 +3,7 @@ from pydantic import BaseModel
 #creating a fastapi app 
 app = FastAPI()
 
+#creating in memory database using list
 posts =[
     {
             "id":1,
@@ -25,8 +26,14 @@ posts =[
         
 ]
 
+#creating a request body to enable users 
 class Post(BaseModel):
     id : int
+    title: str
+    content: str
+    published : bool
+
+class Update_Post(BaseModel):
     title: str
     content: str
     published : bool
@@ -50,20 +57,20 @@ async def add_post(post:Post):
     return new_post
 
 @app.put('/posts/update/{post_id}')
-async def update_post(post : Post, post_id : int):
+async def update_post(post : Update_Post, post_id : int):
     update_post = post.model_dump()
     for post in posts:
         if post["id"] == post_id:
             post.update(update_post)
             return {"post": post}
         
-@app.patch('/posts/update-partial/{post_id}')
-async def update_post(post : Post, post_id : int):
-    update_post = post.model_dump(exclude_unset=True)
-    for post in posts:
-        if post["id"] == post_id:
-            post.update(update_post)
-            return {"post": post}
+# @app.patch('/posts/update-partial/{post_id}')
+# async def update_post(post : Post, post_id : int):
+#     update_post = post.model_dump(exclude_unset=True)
+#     for post in posts:
+#         if post["id"] == post_id:
+#             post.update(update_post)
+#             return {"post": post}
         
 @app.delete('/posts/delete/{post_id}')
 async def delete_post(post_id: int):
@@ -71,7 +78,7 @@ async def delete_post(post_id: int):
         if post["id"] == post_id:
             posts.remove(post)
 
-@app.post('/posts/search')
+@app.get('/posts/search/{keyword}')
 async def search_posts(keyword : str):
         lower = keyword.lower()
         for post in posts:
